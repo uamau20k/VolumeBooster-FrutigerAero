@@ -1,8 +1,5 @@
 # Page Volume Booster (Chrome Extension)
 
-## 📦 Download
-[Download ZIP](https://github.com/uamau20k/Volume-Booster---Fritiger-aero/archive/refs/heads/main.zip)
-
 Floating in-page window to control page audio from 0% to 300%.
 
 ## Features
