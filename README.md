@@ -2,16 +2,6 @@
 
 Floating in-page window to control page audio from 0% to 300%.
 
-## Installation
-
-### Option 1: Download ZIP
-
-1. Click the green **Code** button on this repository.
-2. Select **Download ZIP**.
-3. Extract the ZIP file on your computer.
-4. 
-git clone https://github.com/uamau20k/Volume-Booster---Fritiger-aero.git
-
 ## Features
 - In-page floating panel.
 - Slider from 0 to 300.
