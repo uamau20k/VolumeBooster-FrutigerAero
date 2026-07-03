@@ -38,18 +38,6 @@
 
 ---
 
-# 📸 Screenshots
-
-### Popup
-
-<img src="assets/popup.png" width="350">
-
-### Floating Panel
-
-<img src="assets/panel.png" width="700">
-
----
-
 # 🚀 Installation
 
 ### Install in Developer Mode
