@@ -3,10 +3,6 @@
 > A beautiful **Frutiger Aero inspired** Chrome Extension that boosts the volume of any website from **0% to 300%** using a floating in-page control panel.
 
 <p align="center">
-  <img src="assets/icon.png" alt="Volume Booster Banner" width="800">
-</p>
-
-<p align="center">
 
 ![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue?style=for-the-badge&logo=googlechrome)
 ![Manifest V3](https://img.shields.io/badge/Manifest-V3-green?style=for-the-badge)
