@@ -17,10 +17,8 @@
 
   const defaultSettings = {
     enabled: true,
-    activationMode: "all",
-    currentHost: host,
     globalVolume: DEFAULT,
-    theme: "dark",
+    theme: "light",
     language: "auto",
   };
 
@@ -30,12 +28,7 @@
       status: "Status",
       active: "Active",
       offGlobal: "Global OFF",
-      inactiveYouTube: "Inactive on this site (YouTube only)",
-      inactiveCurrent: "Inactive on this site (fixed host)",
       volume: "Volume",
-      modeAll: "All pages",
-      modeYouTube: "YouTube only",
-      modeCurrent: "Current host only",
       themeDark: "Theme: Dark",
       themeLight: "Theme: Light",
       lowAudio: "Low audio detected.",
@@ -51,12 +44,7 @@
       status: "Estado",
       active: "Activo",
       offGlobal: "OFF global",
-      inactiveYouTube: "Inactivo en este sitio (solo YouTube)",
-      inactiveCurrent: "Inactivo en este sitio (host fijo)",
       volume: "Volumen",
-      modeAll: "Todas las paginas",
-      modeYouTube: "Solo YouTube",
-      modeCurrent: "Solo este host",
       themeDark: "Tema: Oscuro",
       themeLight: "Tema: Claro",
       lowAudio: "Audio bajo detectado.",
@@ -88,7 +76,6 @@
     value: null,
     minBtn: null,
     enabledBtn: null,
-    modeSelect: null,
     status: null,
     themeBtn: null,
     closeBtn: null,
@@ -196,24 +183,8 @@
     return DEFAULT;
   }
 
-  function isYouTubeHost() {
-    return /(^|\.)youtube\.com$/i.test(host) || /(^|\.)youtu\.be$/i.test(host);
-  }
-
   function isActiveForCurrentPage() {
-    if (!settings.enabled) {
-      return false;
-    }
-
-    if (settings.activationMode === "youtube") {
-      return isYouTubeHost();
-    }
-
-    if (settings.activationMode === "current") {
-      return settings.currentHost === host;
-    }
-
-    return true;
+    return Boolean(settings.enabled);
   }
 
   function getEffectivePercent() {
@@ -260,16 +231,6 @@
       return;
     }
 
-    if (settings.activationMode === "youtube" && !isYouTubeHost()) {
-      ui.status.textContent = t("inactiveYouTube");
-      return;
-    }
-
-    if (settings.activationMode === "current" && settings.currentHost !== host) {
-      ui.status.textContent = t("inactiveCurrent");
-      return;
-    }
-
     ui.status.textContent = t("active");
   }
 
@@ -306,12 +267,6 @@
     if (note) note.textContent = t("note");
     if (lowAudioLabel) lowAudioLabel.textContent = t("lowAudio");
     if (lowAudioAction) lowAudioAction.textContent = t("boost150");
-
-    if (ui.modeSelect) {
-      ui.modeSelect.options[0].text = t("modeAll");
-      ui.modeSelect.options[1].text = t("modeYouTube");
-      ui.modeSelect.options[2].text = t("modeCurrent");
-    }
 
     if (ui.languageSelect) {
       ui.languageSelect.options[0].text = t("auto");
@@ -395,11 +350,6 @@
 
           <div class="pvb-row-gap">
             <button class="pvb-btn" id="pvb-enabled-btn">ON</button>
-            <select id="pvb-mode">
-              <option value="all">${t("modeAll")}</option>
-              <option value="youtube">${t("modeYouTube")}</option>
-              <option value="current">${t("modeCurrent")}</option>
-            </select>
           </div>
 
           <div class="pvb-row-gap">
@@ -411,20 +361,22 @@
             </select>
           </div>
 
-          <div class="pvb-profiles">
-            <button class="pvb-btn pvb-profile" data-value="0">0%</button>
-            <button class="pvb-btn pvb-profile" data-value="100">100%</button>
-            <button class="pvb-btn pvb-profile" data-value="150">150%</button>
-            <button class="pvb-btn pvb-profile" data-value="200">200%</button>
-            <button class="pvb-btn pvb-profile" data-value="300">300%</button>
-          </div>
+          <div class="pvb-volume-card">
+            <div class="pvb-volume-head">
+              <span id="pvb-volume-label">${t("volume")}</span>
+              <strong id="pvb-value">${currentPercent}%</strong>
+            </div>
 
-          <div id="pvb-row">
-            <span id="pvb-volume-label">${t("volume")}</span>
-            <strong id="pvb-value">${currentPercent}%</strong>
-          </div>
+            <div class="pvb-profiles">
+              <button class="pvb-btn pvb-profile" data-value="0">0%</button>
+              <button class="pvb-btn pvb-profile" data-value="100">100%</button>
+              <button class="pvb-btn pvb-profile" data-value="150">150%</button>
+              <button class="pvb-btn pvb-profile" data-value="200">200%</button>
+              <button class="pvb-btn pvb-profile" data-value="300">300%</button>
+            </div>
 
-          <input id="pvb-slider" type="range" min="0" max="300" value="${currentPercent}" step="1" />
+            <input id="pvb-slider" type="range" min="0" max="300" value="${currentPercent}" step="1" />
+          </div>
 
           <div id="pvb-low-audio" hidden>
             <span id="pvb-low-audio-label">${t("lowAudio")}</span>
@@ -446,7 +398,6 @@
     ui.value = root.querySelector("#pvb-value");
     ui.minBtn = root.querySelector("#pvb-min-btn");
     ui.enabledBtn = root.querySelector("#pvb-enabled-btn");
-    ui.modeSelect = root.querySelector("#pvb-mode");
     ui.status = root.querySelector("#pvb-status");
     ui.closeBtn = root.querySelector("#pvb-close-btn");
     ui.themeBtn = root.querySelector("#pvb-theme-btn");
@@ -455,7 +406,6 @@
     ui.lowAudioAction = root.querySelector("#pvb-low-audio-action");
 
     updateLocalizedUi();
-    ui.modeSelect.value = settings.activationMode;
     ui.languageSelect.value = settings.language || "auto";
 
     let dragging = false;
@@ -503,15 +453,6 @@
       settings.enabled = !settings.enabled;
       saveSettings();
       refreshButtons();
-      applyCurrentGain();
-    });
-
-    ui.modeSelect.addEventListener("change", () => {
-      settings.activationMode = ui.modeSelect.value;
-      if (settings.activationMode === "current") {
-        settings.currentHost = host;
-      }
-      saveSettings();
       applyCurrentGain();
     });
 
@@ -703,10 +644,6 @@
       siteVolumes = result[SITE_VOLUMES_KEY] || {};
       tabVolumes = result[TAB_VOLUMES_KEY] || {};
       currentLanguage = resolveLanguagePreference();
-
-      if (settings.activationMode === "current" && !settings.currentHost) {
-        settings.currentHost = host;
-      }
 
       currentPercent = getCurrentTabVolume();
 
